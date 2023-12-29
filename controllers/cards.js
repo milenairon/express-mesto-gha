@@ -73,6 +73,14 @@ const deleteCard = (req, res) => {
     })
     .catch((err) => {
       switch (err.name) {
+        case "CastError":
+          return res.status(HTTP_STATUS_BAD_REQUEST).send({
+            message: "Карточка не найдена",
+          });
+        case "ValidationError":
+          return res.status(HTTP_STATUS_BAD_REQUEST).send({
+            message: "Карточка не найдена",
+          });
         case "NotFoundError":
           return res.status(err.statusCode).send({ message: err.message });
 
@@ -99,11 +107,15 @@ const likeCard = (req, res) => {
       switch (err.name) {
         case "CastError":
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при обновлении профиля",
+            message: "Переданы некорректные данные при лайке карточки",
           });
         case "ValidationError":
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при обновлении профиля",
+            message: "Переданы некорректные данные при лайке карточки",
+          });
+        case "NotFoundError":
+          return res.status(err.statusCode).send({
+            message: err.message,
           });
 
         default:
@@ -129,11 +141,11 @@ const dislikeCard = (req, res) => {
       switch (err.name) {
         case "CastError":
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при обновлении профиля",
+            message: "Переданы некорректные данные при дизлайке карточки",
           });
         case "ValidationError":
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при обновлении профиля",
+            message: "Переданы некорректные данные при дизлайке карточки",
           });
         case "NotFoundError":
           return res.status(err.statusCode).send({
