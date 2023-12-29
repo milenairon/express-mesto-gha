@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 
 const app = express();
 
-const { PORT = 9090 } = process.env;
+const { PORT = 3000 } = process.env;
 
 const mongoose = require("mongoose");
 
