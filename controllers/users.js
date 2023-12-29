@@ -13,9 +13,13 @@ const getUsers = (req, res) => {
     .then((users) => res.send({ data: users }))
     .catch((err) => {
       switch (err.name) {
-        case "CastError" || "ValidationError":
+        case "CastError":
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при создании пользователя",
+            message: "Переданы некорректные данные при обновлении профиля",
+          });
+        case "ValidationError":
+          return res.status(HTTP_STATUS_BAD_REQUEST).send({
+            message: "Переданы некорректные данные при обновлении профиля",
           });
 
         default:
@@ -45,6 +49,14 @@ const getUserById = (req, res) => {
           return res.status(err.statusCode).send({
             message: err.message,
           });
+        case "CastError":
+          return res.status(HTTP_STATUS_BAD_REQUEST).send({
+            message: "Переданы некорректные данные при обновлении профиля",
+          });
+        case "ValidationError":
+          return res.status(HTTP_STATUS_BAD_REQUEST).send({
+            message: "Переданы некорректные данные при обновлении профиля",
+          });
 
         default:
           return res
@@ -70,9 +82,13 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       switch (err.name) {
-        case "CastError" || "ValidationError":
+        case "CastError":
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при создании пользователя",
+            message: "Переданы некорректные данные при обновлении профиля",
+          });
+        case "ValidationError":
+          return res.status(HTTP_STATUS_BAD_REQUEST).send({
+            message: "Переданы некорректные данные при обновлении профиля",
           });
         case "NotFoundError":
           return res.status(err.statusCode).send({
@@ -91,7 +107,11 @@ const createUser = (req, res) => {
 const updateUser = (req, res) => {
   const { name, about } = req.body;
   const userId = req.user._id;
-  User.findByIdAndUpdate(userId, { name, about })
+  User.findByIdAndUpdate(
+    userId,
+    { name, about },
+    { new: true, runValidators: true },
+  )
     .orFail(() => new NotFoundError("Пользователь по указанному _id не найден"))
     .then((user) => {
       res.send({
@@ -103,7 +123,11 @@ const updateUser = (req, res) => {
     })
     .catch((err) => {
       switch (err.name) {
-        case "CastError" || "ValidationError":
+        case "CastError":
+          return res.status(HTTP_STATUS_BAD_REQUEST).send({
+            message: "Переданы некорректные данные при обновлении профиля",
+          });
+        case "ValidationError":
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
             message: "Переданы некорректные данные при обновлении профиля",
           });
@@ -115,7 +139,7 @@ const updateUser = (req, res) => {
         default:
           return res
             .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "Ошибка по-умолчанию" });
+            .send({ message: "Ошибка по-умолчанию", error: err.name });
       }
     });
 };
@@ -124,7 +148,7 @@ const updateUser = (req, res) => {
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const userId = req.user._id;
-  User.findByIdAndUpdate(userId, { avatar })
+  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .orFail(() => new NotFoundError("Пользователь по указанному _id не найден"))
     .then((user) => {
       res.send({
@@ -136,7 +160,7 @@ const updateAvatar = (req, res) => {
     })
     .catch((err) => {
       switch (err.name) {
-        case "CastError" || "ValidationError":
+        case "ValidationError":
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
             message: "Переданы некорректные данные при обновлении аватара",
           });

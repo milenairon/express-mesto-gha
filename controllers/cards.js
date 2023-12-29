@@ -13,15 +13,20 @@ const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
     .catch((err) => {
-      if (err.name === "CastError" || err.name === "ValidationError") {
-        return res.status(HTTP_STATUS_BAD_REQUEST).send({
-          message: "Переданы некорректные данные при создании карточки",
-        });
-        // eslint-disable-next-line no-else-return
-      } else {
-        return res
-          .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: "Ошибка по-умолчанию" });
+      switch (err.name) {
+        case "CastError":
+          return res.status(HTTP_STATUS_BAD_REQUEST).send({
+            message: "Переданы некорректные данные",
+          });
+        case "ValidationError":
+          return res.status(HTTP_STATUS_BAD_REQUEST).send({
+            message: "Переданы некорректные данные",
+          });
+
+        default:
+          return res
+            .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
+            .send({ message: "Ошибка по-умолчанию" });
       }
     });
 };
@@ -35,9 +40,13 @@ const createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       switch (err.name) {
-        case "CastError" || "ValidationError":
+        case "CastError":
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при создании карточки",
+            message: "Переданы некорректные данные при обновлении профиля",
+          });
+        case "ValidationError":
+          return res.status(HTTP_STATUS_BAD_REQUEST).send({
+            message: "Переданы некорректные данные при обновлении профиля",
           });
 
         default:
@@ -80,14 +89,18 @@ const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true },
+    { new: true }
   )
     .orFail(() => new NotFoundError("Передан несуществующий _id карточки."))
     .catch((err) => {
       switch (err.name) {
-        case "CastError" || "ValidationError":
+        case "CastError":
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при лайке карточки",
+            message: "Переданы некорректные данные при обновлении профиля",
+          });
+        case "ValidationError":
+          return res.status(HTTP_STATUS_BAD_REQUEST).send({
+            message: "Переданы некорректные данные при обновлении профиля",
           });
 
         default:
@@ -103,14 +116,18 @@ const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true },
+    { new: true }
   )
     .orFail(() => new NotFoundError("Передан несуществующий _id карточки."))
     .catch((err) => {
       switch (err.name) {
-        case "CastError" || "ValidationError":
+        case "CastError":
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при дизлайке карточки",
+            message: "Переданы некорректные данные при обновлении профиля",
+          });
+        case "ValidationError":
+          return res.status(HTTP_STATUS_BAD_REQUEST).send({
+            message: "Переданы некорректные данные при обновлении профиля",
           });
         case "NotFoundError":
           return res.status(err.statusCode).send({
@@ -126,5 +143,9 @@ const dislikeCard = (req, res) => {
 };
 
 module.exports = {
-  getCards, createCard, deleteCard, likeCard, dislikeCard,
+  getCards,
+  createCard,
+  deleteCard,
+  likeCard,
+  dislikeCard,
 };
