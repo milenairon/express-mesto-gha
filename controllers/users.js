@@ -139,7 +139,7 @@ const updateUser = (req, res) => {
         default:
           return res
             .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "Ошибка по-умолчанию", error: err.name });
+            .send({ message: "Ошибка по-умолчанию" });
       }
     });
 };

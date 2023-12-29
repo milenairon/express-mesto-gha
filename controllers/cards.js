@@ -89,9 +89,12 @@ const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true }
+    { new: true },
   )
     .orFail(() => new NotFoundError("Передан несуществующий _id карточки."))
+    .then((card) => {
+      res.send({ data: card });
+    })
     .catch((err) => {
       switch (err.name) {
         case "CastError":
@@ -116,9 +119,12 @@ const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true }
+    { new: true },
   )
     .orFail(() => new NotFoundError("Передан несуществующий _id карточки."))
+    .then((card) => {
+      res.send({ data: card });
+    })
     .catch((err) => {
       switch (err.name) {
         case "CastError":
