@@ -26,4 +26,8 @@ app.use(bodyParser.urlencoded({ extended: true })); // для приёма ве�
 app.use("/", require("./routes/users"));
 app.use("/", require("./routes/cards"));
 
+app.all("*", (req, res) => {
+  res.status(404).send({ message: "Страница не найдена" });
+});
+
 app.listen(PORT);
