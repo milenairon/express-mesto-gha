@@ -11,22 +11,10 @@ const getUsers = (req, res) => {
   User.find({})
     // возвращаем записанные в базу данные пользователю
     .then((users) => res.send({ data: users }))
-    .catch((err) => {
-      switch (err.name) {
-        case "CastError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при обновлении профиля",
-          });
-        case "ValidationError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при обновлении профиля",
-          });
-
-        default:
-          return res
-            .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "Ошибка по-умолчанию" });
-      }
+    .catch(() => {
+      res
+        .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
@@ -53,15 +41,11 @@ const getUserById = (req, res) => {
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
             message: "Переданы некорректные данные при обновлении профиля",
           });
-        case "ValidationError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при обновлении профиля",
-          });
 
         default:
           return res
             .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "Ошибка по-умолчанию" });
+            .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
@@ -82,10 +66,6 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       switch (err.name) {
-        case "CastError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при обновлении профиля",
-          });
         case "ValidationError":
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
             message: "Переданы некорректные данные при обновлении профиля",
@@ -98,7 +78,7 @@ const createUser = (req, res) => {
         default:
           return res
             .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "Ошибка по-умолчанию" });
+            .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
@@ -139,7 +119,7 @@ const updateUser = (req, res) => {
         default:
           return res
             .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "Ошибка по-умолчанию" });
+            .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
@@ -164,6 +144,10 @@ const updateAvatar = (req, res) => {
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
             message: "Переданы некорректные данные при обновлении аватара",
           });
+        case "CastError":
+          return res.status(HTTP_STATUS_BAD_REQUEST).send({
+            message: "Переданы некорректные данные при обновлении аватара",
+          });
         case "NotFoundError":
           return res.status(err.statusCode).send({
             message: err.message,
@@ -172,7 +156,7 @@ const updateAvatar = (req, res) => {
         default:
           return res
             .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "Ошибка по-умолчанию" });
+            .send({ message: "На сервере произошла ошибка" });
       }
     });
 };

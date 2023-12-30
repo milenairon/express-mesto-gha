@@ -12,22 +12,10 @@ const NotFoundError = require("../errors/NotFoundError");
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => {
-      switch (err.name) {
-        case "CastError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные",
-          });
-        case "ValidationError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные",
-          });
-
-        default:
-          return res
-            .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "Ошибка по-умолчанию" });
-      }
+    .catch(() => {
+      res
+        .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
     });
 };
 
@@ -40,10 +28,6 @@ const createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       switch (err.name) {
-        case "CastError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при обновлении профиля",
-          });
         case "ValidationError":
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
             message: "Переданы некорректные данные при обновлении профиля",
@@ -52,7 +36,7 @@ const createCard = (req, res) => {
         default:
           return res
             .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "Ошибка по-умолчанию" });
+            .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
@@ -77,17 +61,13 @@ const deleteCard = (req, res) => {
           return res.status(HTTP_STATUS_BAD_REQUEST).send({
             message: "Карточка не найдена",
           });
-        case "ValidationError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Карточка не найдена",
-          });
         case "NotFoundError":
           return res.status(err.statusCode).send({ message: err.message });
 
         default:
           return res
             .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "Ошибка по-умолчанию" });
+            .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
@@ -121,7 +101,7 @@ const likeCard = (req, res) => {
         default:
           return res
             .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "Ошибка по-умолчанию" });
+            .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
@@ -155,7 +135,7 @@ const dislikeCard = (req, res) => {
         default:
           return res
             .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "Ошибка по-умолчанию" });
+            .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
