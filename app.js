@@ -1,13 +1,11 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
-const { celebrate, Joi } = require("celebrate");
-// Заголовки безопасности проставляются автоматически(безопасность)
-const helmet = require("helmet");
-
 // Если запрос не проходит описанную валидацию,
 // celebrate передаст его дальше - в обработчик ошибки
-const { errors } = require("celebrate");
+const cookieParser = require("cookie-parser");
+const { celebrate, Joi, errors } = require("celebrate");
+// Заголовки безопасности проставляются автоматически(безопасность)
+const helmet = require("helmet");
 
 const app = express();
 
