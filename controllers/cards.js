@@ -1,7 +1,7 @@
-const { HTTP_STATUS_BAD_REQUEST } = require("http2").constants; // 400
-const { HTTP_STATUS_INTERNAL_SERVER_ERROR } = require("http2").constants; // 500
 const Card = require("../models/card");
-const NotFoundError = require("../errors/NotFoundError");
+const BadRequestError = require("../errors/BadRequestError"); // 400
+const ForbiddenError = require("../errors/ForbiddenError"); // 403
+const NotFoundError = require("../errors/NotFoundError"); // 404
 
 // КОНТРОЛЛЕРЫ
 // Контроллер — функция, ответственная за взаимодействие с моделью.
@@ -9,18 +9,16 @@ const NotFoundError = require("../errors/NotFoundError");
 // или удаление документа.
 
 // возвращает все карточки
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => {
-      res
-        .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-        .send({ message: "На сервере произошла ошибка" });
+    .catch((err) => {
+      next(err);
     });
 };
 
 // создаёт карточку
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const userId = req.user._id;
   const { name, link } = req.body;
   // записываем данные в базу
@@ -29,22 +27,25 @@ const createCard = (req, res) => {
     .catch((err) => {
       switch (err.name) {
         case "ValidationError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при обновлении профиля",
-          });
+          return next(
+            new BadRequestError(
+              "Переданы некорректные данные при обновлении профиля"
+            )
+          );
 
         default:
-          return res
-            .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "На сервере произошла ошибка" });
+          return next(err);
       }
     });
 };
 
 // удаляет карточку по идентификатору
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-
+  const { userId } = req.user;
+  if (cardId.owner !== userId) {
+    next(new ForbiddenError("Попытка удалить чужую карточку"));
+  }
   Card.findById(cardId)
     .then((card) => {
       if (!card) {
@@ -58,26 +59,22 @@ const deleteCard = (req, res) => {
     .catch((err) => {
       switch (err.name) {
         case "CastError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Карточка не найдена",
-          });
+          return next(new BadRequestError("Карточка не найдена"));
         case "NotFoundError":
-          return res.status(err.statusCode).send({ message: err.message });
+          return next(new NotFoundError(err.mesage));
 
         default:
-          return res
-            .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "На сервере произошла ошибка" });
+          return next(err);
       }
     });
 };
 
 // поставить лайк карточке
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true },
+    { new: true }
   )
     .orFail(() => new NotFoundError("Передан несуществующий _id карточки."))
     .then((card) => {
@@ -86,32 +83,32 @@ const likeCard = (req, res) => {
     .catch((err) => {
       switch (err.name) {
         case "CastError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при лайке карточки",
-          });
+          return next(
+            new BadRequestError(
+              "Переданы некорректные данные при лайке карточки"
+            )
+          );
         case "ValidationError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при лайке карточки",
-          });
+          return next(
+            new BadRequestError(
+              "Переданы некорректные данные при лайке карточки"
+            )
+          );
         case "NotFoundError":
-          return res.status(err.statusCode).send({
-            message: err.message,
-          });
+          return next(new NotFoundError(err.mesage));
 
         default:
-          return res
-            .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "На сервере произошла ошибка" });
+          return next(err);
       }
     });
 };
 
 // убрать лайк с карточки
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true },
+    { new: true }
   )
     .orFail(() => new NotFoundError("Передан несуществующий _id карточки."))
     .then((card) => {
@@ -120,22 +117,22 @@ const dislikeCard = (req, res) => {
     .catch((err) => {
       switch (err.name) {
         case "CastError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при дизлайке карточки",
-          });
+          return next(
+            new BadRequestError(
+              "Переданы некорректные данные при дизлайке карточки"
+            )
+          );
         case "ValidationError":
-          return res.status(HTTP_STATUS_BAD_REQUEST).send({
-            message: "Переданы некорректные данные при дизлайке карточки",
-          });
+          return next(
+            new BadRequestError(
+              "Переданы некорректные данные при дизлайке карточки"
+            )
+          );
         case "NotFoundError":
-          return res.status(err.statusCode).send({
-            message: err.message,
-          });
+          return next(new NotFoundError(err.mesage));
 
         default:
-          return res
-            .status(HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: "На сервере произошла ошибка" });
+          return next(err);
       }
     });
 };

@@ -1,18 +1,53 @@
 const router = require("express").Router();
+const { celebrate, Joi } = require("celebrate");
 
 const {
-  createUser,
   getUsers,
   getUserById,
   updateUser,
   updateAvatar,
+  getCurrentUser,
 } = require("../controllers/users");
 
 // РОУТЕРЫ
-router.get("/users", getUsers); // возвращает всех пользователей
-router.get("/users/:userId", getUserById); // возвращает пользователя по _id
-router.post("/users", createUser); // создаёт пользователя
-router.patch("/users/me", updateUser); // Ообновляет профиль
-router.patch("/users/me/avatar", updateAvatar); // Обновляет аватар
+// возвращает всех пользователей
+router.get("/users", getUsers);
+
+// возвращает текущего пользователя
+router.get("/users/me", getCurrentUser);
+
+// возвращает пользователя по _id
+router.get(
+  "/users/:userId",
+  celebrate({
+    params: Joi.object().keys({
+      userId: Joi.string().length(24).hex().required(),
+    }),
+  }),
+  getUserById
+);
+
+// Ообновляет профиль
+router.patch(
+  "/users/me",
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(30),
+    }),
+  }),
+  updateUser
+);
+
+// Обновляет аватар
+router.patch(
+  "/users/me/avatar",
+  celebrate({
+    body: Joi.object().keys({
+      avatar: Joi.string(), // .pattern(URL_REGEX) ВСТАВИТЬ?????????????????????????????????????????
+    }),
+  }),
+  updateAvatar
+);
 
 module.exports = router;
