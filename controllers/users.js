@@ -79,13 +79,12 @@ const createUser = (req, res, next) => {
       User.create({ name, about, avatar, email, password: hash });
     })
     .then((user) => {
-      const { _id } = user;
-      return res.status(201).send({
+      // const { _id } = user;
+      res.status(201).send({
         name,
         about,
         avatar,
-        email,
-        _id, // _id: req.user._id
+        _id: user._id, // _id: req.user._id или _id
       });
     })
     .catch((err) => {
@@ -97,7 +96,8 @@ const createUser = (req, res, next) => {
         );
       } else if (err.name === "NotFoundError") {
         next(new NotFoundError(err.message));
-      } else if (err.name === "MongoServerError" || err.code === 11000) {
+      } else if (err.code === 11000) {
+        // || err.name === "MongoServerError"??????????
         next(
           new ConflictError(
             "При регистрации указан email, который уже существует на сервере"
