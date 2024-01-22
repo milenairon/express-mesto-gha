@@ -41,7 +41,7 @@ app.post(
   "/signin",
   celebrate({
     body: Joi.object().keys({
-      email: Joi.string().required().unique(), // .pattern(URL_REGEX) ВСТАВИТЬ???????????
+      email: Joi.string().required(), // .pattern(URL_REGEX) ВСТАВИТЬ???????????
       password: Joi.string().required(),
     }),
   }),
@@ -55,7 +55,7 @@ app.post(
     body: Joi.object().keys({
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
-      email: Joi.string().required().unique(), // .pattern(URL_REGEX) ВСТАВИТЬ???????
+      email: Joi.string().required(), // .pattern(URL_REGEX) ВСТАВИТЬ???????
       avatar: Joi.string(), // .pattern(URL_REGEX) ВСТАВИТЬ???????????????????????????
       password: Joi.string().required(),
     }),
