@@ -4,14 +4,6 @@
     "no-underscore-dangle": ["error", { "allow": ["_id"] }],
     "quotes": ["off"], // ковычки (конфликт с vsCode)
     "object-curly-newline": "off", //перенос строк (конфликт с vsCode)
-    "comma-dangle": [0, "always-multiline"], // запятая (конфликт с vsCode)
-    "import/no-extraneous-dependencies": [
-      "error",
-      {
-        "devDependencies": false,
-        "optionalDependencies": false,
-        "peerDependencies": false
-      }
-    ]
+    "comma-dangle": [0, "always-multiline"]
   }
 }
