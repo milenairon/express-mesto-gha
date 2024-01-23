@@ -42,19 +42,19 @@ const createCard = (req, res, next) => {
 // удаляет карточку по идентификатору
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-  const { userId } = req.user;
-  if (cardId.owner !== userId) {
-    next(new ForbiddenError("Попытка удалить чужую карточку"));
-  }
   Card.findById(cardId)
     .then((card) => {
       if (!card) {
         throw new NotFoundError("Карточка не найдена");
-      } else {
-        return Card.findByIdAndDelete(cardId).then(() => {
-          res.send({ message: "Карточка удалена!" });
-        });
       }
+
+      if (card.owner !== req.user._id) {
+        throw new ForbiddenError("Попытка удалить чужую карточку");
+      }
+
+      return Card.findByIdAndDelete(cardId).then(() => {
+        res.send({ message: "Карточка удалена!" });
+      });
     })
     .catch((err) => {
       switch (err.name) {
