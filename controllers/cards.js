@@ -61,7 +61,9 @@ const deleteCard = (req, res, next) => {
         case "CastError":
           return next(new BadRequestError("Карточка не найдена"));
         case "NotFoundError":
-          return next(new NotFoundError(err.mesage));
+          return next(new NotFoundError(err.message));
+        case "ForbiddenError":
+          return next(new ForbiddenError(err.message));
 
         default:
           return next(err);
@@ -95,7 +97,7 @@ const likeCard = (req, res, next) => {
             )
           );
         case "NotFoundError":
-          return next(new NotFoundError(err.mesage));
+          return next(new NotFoundError(err.message));
 
         default:
           return next(err);
@@ -129,7 +131,7 @@ const dislikeCard = (req, res, next) => {
             )
           );
         case "NotFoundError":
-          return next(new NotFoundError(err.mesage));
+          return next(new NotFoundError(err.message));
 
         default:
           return next(err);
