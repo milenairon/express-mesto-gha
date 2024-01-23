@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 module.exports = (req, res, next) => {
   // достаём авторизационный заголовок(токен)
   const { authorization } = req.headers; // const token = req.cookies.jwt;
-
   // Проверка, если токена нет
   if (!authorization || !authorization.startsWith("Bearer ")) {
     return res

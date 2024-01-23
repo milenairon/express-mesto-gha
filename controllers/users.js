@@ -79,7 +79,6 @@ const createUser = (req, res, next) => {
       User.create({ name, about, avatar, email, password: hash });
     })
     .then((user) => {
-      // const { _id } = user;
       res.status(201).send({
         name,
         about,
@@ -200,13 +199,13 @@ const login = (req, res, next) => {
         "3f679f11153b904768aaad9d8359fe88" // сгенерирован crypto
       );
       // сохранить токен в куки
-      res
-        .cookie("jwt", token, {
-          // token - наш JWT токен, который мы отправляем
-          maxAge: 3600000 * 24 * 7,
-          httpOnly: true, // Такую куку нельзя прочесть из JavaScript
-        })
-        .send({ _id: token });
+      res.send({ _id: token });
+      //   .cookie("jwt", token, {
+      //     // token - наш JWT токен, который мы отправляем
+      //     maxAge: 3600000 * 24 * 7,
+      //     httpOnly: true, // Такую куку нельзя прочесть из JavaScript
+      //   })
+      // .send({ _id: token });
     })
     .catch(() => {
       next(new UnauthorizedError("Передан неверный логин или пароль"));
