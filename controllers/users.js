@@ -1,7 +1,10 @@
 const bcrypt = require("bcryptjs");
 
-const jwt = require("jsonwebtoken");
+const MONGO_DUBLICATE_ERROR_CODE = 11000;
+const SOLT_ROUND = 10;
 
+const jwt = require("jsonwebtoken");
+// const { MongoServerError } = require("mongodb");
 const User = require("../models/user");
 const BadRequestError = require("../errors/BadRequestError"); // 400
 const UnauthorizedError = require("../errors/UnauthorizedError"); // 401
@@ -70,42 +73,75 @@ const getUserById = (req, res, next) => {
 };
 
 // Создаёт пользователя (Регистрация)
-const createUser = (req, res, next) => {
+const createUser = async (req, res, next) => {
   // получим из объекта запроса данные пользователя
-  const { name, about, avatar, email, password } = req.body;
-  bcrypt
-    .hash(password, 10)
-    .then((hash) => {
-      User.create({ name, about, avatar, email, password: hash });
-    })
-    .then((user) => {
-      res.status(201).send({
-        name,
-        about,
-        avatar,
-        _id: user._id, // _id: req.user._id или _id
-      });
-    })
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        next(
-          new BadRequestError(
-            "Переданы некорректные данные при создании профиля"
-          )
-        );
-      } else if (err.name === "NotFoundError") {
-        next(new NotFoundError(err.message));
-      } else if (err.code === 11000) {
-        // || err.name === "MongoServerError"??????????
-        next(
-          new ConflictError(
-            "При регистрации указан email, который уже существует на сервере"
-          )
-        );
-      } else {
-        next(err);
-      }
+  try {
+    const { name, about, avatar, email, password } = req.body || {};
+    const hash = await bcrypt.hash(password, SOLT_ROUND);
+    const newUser = await User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
     });
+    res.status(201).send(newUser);
+  } catch (err) {
+    if (
+      err.code === MONGO_DUBLICATE_ERROR_CODE || err.name === "MongoServerError"
+    ) {
+      next(
+        new ConflictError(
+          "При регистрации указан email, который уже существует на сервере"
+        )
+      );
+    } else if (err.name === "ValidationError") {
+      next(
+        new BadRequestError("Переданы некорректные данные при создании профиля")
+      );
+    } else if (err.name === "NotFoundError") {
+      next(new NotFoundError(err.message));
+    } else {
+      next(err);
+    }
+  }
+  // const { name, about, avatar, email, password } = req.body;
+  // bcrypt
+  //   .hash(password, SOLT_ROUND)
+  //   .then((hash) => {
+  //     User.create({ name, about, avatar, email, password: hash }).then(
+  //       (user) => {
+  //         console.log(user);
+  //         res.status(201).send({
+  //           name,
+  //           about,
+  //           avatar,
+  //           email,
+  //           _id: user._id,
+  //         });
+  //       }
+  //     );
+  //   })
+  //   .catch((err) => {
+  // if (err.code === 11000 || err.name === "MongoServerError") {
+  //   // res.status(422).send({ succes: false, message: "User already exist!" });
+  //   next(
+  //     new ConflictError(
+  //       "При регистрации указан email, который уже существует на сервере"
+  //     )
+  //   );
+  // } else if (err.name === "ValidationError") {
+  //   next(
+  //     new BadRequestError(
+  //       "Переданы некорректные данные при создании профиля"
+  //     )
+  //   );
+  // } else if (err.name === "NotFoundError") {
+  //   next(new NotFoundError(err.message));
+  // } else {
+  //   next(err);
+  // }
+  //   });
 };
 
 // Ообновляет профиль
@@ -123,8 +159,7 @@ const updateUser = (req, res, next) => {
         name: user.name,
         about: user.about,
         avatar: user.avatar,
-        email: user.email,
-        _id: user._id,
+        email: user.email, // _id: req.user._id или _id
       });
     })
     .catch((err) => {
@@ -161,8 +196,7 @@ const updateAvatar = (req, res, next) => {
         name: user.name,
         about: user.about,
         avatar: user.avatar,
-        email: user.email,
-        _id: user._id,
+        email: user.email, // _id: req.user._id или _id
       });
     })
     .catch((err) => {
@@ -190,16 +224,19 @@ const updateAvatar = (req, res, next) => {
 
 // Получает из запроса почту и пароль и проверяет их
 const login = (req, res, next) => {
+  console.log(0);
   // ищет по емаил пользователя
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
+      console.log(1);
       const token = jwt.sign(
         { _id: user._id },
         "3f679f11153b904768aaad9d8359fe88" // сгенерирован crypto
       );
       // сохранить токен в куки
       res.send({ _id: token });
+      console.log(2);
       //   .cookie("jwt", token, {
       //     // token - наш JWT токен, который мы отправляем
       //     maxAge: 3600000 * 24 * 7,
@@ -208,6 +245,7 @@ const login = (req, res, next) => {
       // .send({ _id: token });
     })
     .catch(() => {
+      console.log(3);
       next(new UnauthorizedError("Передан неверный логин или пароль"));
     });
 };

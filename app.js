@@ -36,18 +36,6 @@ mongoose.connect("mongodb://127.0.0.1:27017/mestodb");
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
 
-// Аутентификация
-app.post(
-  "/signin",
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().email().required(),
-      password: Joi.string().required(),
-    }),
-  }),
-  login
-);
-
 // Регистрация
 app.post(
   "/signup",
@@ -63,6 +51,18 @@ app.post(
     }),
   }),
   createUser
+);
+
+// Аутентификация
+app.post(
+  "/signin",
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().email().required(),
+      password: Joi.string().required(),
+    }),
+  }),
+  login
 );
 
 app.use("/", auth, require("./routes/users"));
