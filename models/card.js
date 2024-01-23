@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const { ObjectId } = mongoose.Schema.Types;
 
@@ -7,8 +7,8 @@ const cardSchema = new mongoose.Schema(
     // имя карточки
     name: {
       type: String,
-      minlength: [2, "Имя должно быть не менее 2 символов"],
-      maxlength: [30, "Имя должно быть не более 30 символов"],
+      minlength: [2, 'Имя должно быть не менее 2 символов'],
+      maxlength: [30, 'Имя должно быть не более 30 символов'],
       required: true,
     },
     // ссылка на картинку
@@ -18,10 +18,10 @@ const cardSchema = new mongoose.Schema(
       validate: {
         validator: (avatar) => {
           /https?:\/\/(www\.)?[a-zA-Z0-9-@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([a-zA-Z0-9()-@:%_+.~#?&//=]*)/.test(
-            avatar
+            avatar,
           );
         }, // регулярное выражение
-        message: "Передан некорректный электронный адрес",
+        message: 'Передан некорректный электронный адрес',
       },
     },
     // ссылка на модель автора карточки
@@ -42,7 +42,7 @@ const cardSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { versionKey: false }
+  { versionKey: false },
 );
 
-module.exports = mongoose.model("card", cardSchema);
+module.exports = mongoose.model('card', cardSchema);

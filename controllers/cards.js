@@ -1,7 +1,7 @@
-const Card = require("../models/card");
-const BadRequestError = require("../errors/BadRequestError"); // 400
-const ForbiddenError = require("../errors/ForbiddenError"); // 403
-const NotFoundError = require("../errors/NotFoundError"); // 404
+const Card = require('../models/card');
+const BadRequestError = require('../errors/BadRequestError'); // 400
+const ForbiddenError = require('../errors/ForbiddenError'); // 403
+const NotFoundError = require('../errors/NotFoundError'); // 404
 
 // КОНТРОЛЛЕРЫ
 // Контроллер — функция, ответственная за взаимодействие с моделью.
@@ -26,11 +26,11 @@ const createCard = (req, res, next) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       switch (err.name) {
-        case "ValidationError":
+        case 'ValidationError':
           return next(
             new BadRequestError(
-              "Переданы некорректные данные при обновлении профиля"
-            )
+              'Переданы некорректные данные при обновлении профиля',
+            ),
           );
 
         default:
@@ -45,23 +45,23 @@ const deleteCard = (req, res, next) => {
   Card.findById(cardId)
     .then((card) => {
       if (!card) {
-        throw new NotFoundError("Карточка не найдена");
+        throw new NotFoundError('Карточка не найдена');
       }
       if (card.owner.toString() !== req.user._id) {
-        throw new ForbiddenError("Попытка удалить чужую карточку");
+        throw new ForbiddenError('Попытка удалить чужую карточку');
       }
 
       return Card.findByIdAndDelete(cardId).then(() => {
-        res.send({ message: "Карточка удалена!" });
+        res.send({ message: 'Карточка удалена!' });
       });
     })
     .catch((err) => {
       switch (err.name) {
-        case "CastError":
-          return next(new BadRequestError("Карточка не найдена"));
-        case "NotFoundError":
+        case 'CastError':
+          return next(new BadRequestError('Карточка не найдена'));
+        case 'NotFoundError':
           return next(new NotFoundError(err.message));
-        case "ForbiddenError":
+        case 'ForbiddenError':
           return next(new ForbiddenError(err.message));
 
         default:
@@ -75,27 +75,27 @@ const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true }
+    { new: true },
   )
-    .orFail(() => new NotFoundError("Передан несуществующий _id карточки."))
+    .orFail(() => new NotFoundError('Передан несуществующий _id карточки.'))
     .then((card) => {
       res.send({ data: card });
     })
     .catch((err) => {
       switch (err.name) {
-        case "CastError":
+        case 'CastError':
           return next(
             new BadRequestError(
-              "Переданы некорректные данные при лайке карточки"
-            )
+              'Переданы некорректные данные при лайке карточки',
+            ),
           );
-        case "ValidationError":
+        case 'ValidationError':
           return next(
             new BadRequestError(
-              "Переданы некорректные данные при лайке карточки"
-            )
+              'Переданы некорректные данные при лайке карточки',
+            ),
           );
-        case "NotFoundError":
+        case 'NotFoundError':
           return next(new NotFoundError(err.message));
 
         default:
@@ -109,27 +109,27 @@ const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true }
+    { new: true },
   )
-    .orFail(() => new NotFoundError("Передан несуществующий _id карточки."))
+    .orFail(() => new NotFoundError('Передан несуществующий _id карточки.'))
     .then((card) => {
       res.send({ data: card });
     })
     .catch((err) => {
       switch (err.name) {
-        case "CastError":
+        case 'CastError':
           return next(
             new BadRequestError(
-              "Переданы некорректные данные при дизлайке карточки"
-            )
+              'Переданы некорректные данные при дизлайке карточки',
+            ),
           );
-        case "ValidationError":
+        case 'ValidationError':
           return next(
             new BadRequestError(
-              "Переданы некорректные данные при дизлайке карточки"
-            )
+              'Переданы некорректные данные при дизлайке карточки',
+            ),
           );
-        case "NotFoundError":
+        case 'NotFoundError':
           return next(new NotFoundError(err.message));
 
         default:
