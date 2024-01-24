@@ -15,6 +15,7 @@ const mongoose = require('mongoose');
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 const limiter = require('./middlewares/rateLimiter');
+const NotFoundError = require('./errors/NotFoundError');
 
 const handleErrors = require('./middlewares/handleErrors');
 
@@ -61,11 +62,12 @@ app.post(
 app.use('/', auth, require('./routes/users'));
 app.use('/', auth, require('./routes/cards'));
 
+app.all('*', (req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
+});
+
 // Обработчик ошибок celebrate
 app.use(errors());
-app.all('*', (req, res) => {
-  res.status(404).send({ message: 'Страница не найдена' });
-});
 
 // Централизованная обработка ошибок
 app.use(handleErrors);

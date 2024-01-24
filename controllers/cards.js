@@ -1,4 +1,6 @@
+const { HTTP_STATUS_CREATED } = require('http2').constants; // 201
 const Card = require('../models/card');
+
 const BadRequestError = require('../errors/BadRequestError'); // 400
 const ForbiddenError = require('../errors/ForbiddenError'); // 403
 const NotFoundError = require('../errors/NotFoundError'); // 404
@@ -23,7 +25,7 @@ const createCard = (req, res, next) => {
   const { name, link } = req.body;
   // записываем данные в базу
   Card.create({ name, link, owner: userId })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.status(HTTP_STATUS_CREATED).send({ data: card }))
     .catch((err) => {
       switch (err.name) {
         case 'ValidationError':

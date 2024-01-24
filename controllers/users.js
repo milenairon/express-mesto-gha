@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 
 const MONGO_DUBLICATE_ERROR_CODE = 11000;
 const SOLT_ROUND = 10;
+const { HTTP_STATUS_CREATED } = require('http2').constants; // 201
 
 const jwt = require('jsonwebtoken');
 // const { MongoServerError } = require("mongodb");
@@ -87,7 +88,7 @@ const createUser = async (req, res, next) => {
       email,
       password: hash,
     });
-    res.status(201).send({
+    res.status(HTTP_STATUS_CREATED).send({
       name: newUser.name,
       about: newUser.about,
       avatar: newUser.avatar,
